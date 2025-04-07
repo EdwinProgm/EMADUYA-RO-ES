@@ -30,55 +30,108 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   
     // Event listeners for slider buttons
-    nextBtn.addEventListener("click", () => {
-      nextSlide()
-      stopSlideInterval()
-      startSlideInterval()
-    })
+    if (nextBtn && prevBtn) {
+      nextBtn.addEventListener("click", () => {
+        nextSlide()
+        stopSlideInterval()
+        startSlideInterval()
+      })
   
-    prevBtn.addEventListener("click", () => {
-      prevSlide()
-      stopSlideInterval()
-      startSlideInterval()
-    })
+      prevBtn.addEventListener("click", () => {
+        prevSlide()
+        stopSlideInterval()
+        startSlideInterval()
+      })
+    }
   
     // Pause slider on hover
     const heroSlider = document.querySelector(".hero-slider")
-    heroSlider.addEventListener("mouseenter", stopSlideInterval)
-    heroSlider.addEventListener("mouseleave", startSlideInterval)
-  
-    // Start the slider
-    startSlideInterval()
-  
-    // Mobile menu toggle
-    function setupMobileMenu() {
-      if (window.innerWidth <= 768) {
-        const dropdowns = document.querySelectorAll(".dropdown")
-  
-        dropdowns.forEach((dropdown) => {
-          const link = dropdown.querySelector("a")
-          const menu = dropdown.querySelector(".dropdown-menu")
-  
-          link.addEventListener("click", (e) => {
-            e.preventDefault()
-            menu.style.display = menu.style.display === "block" ? "none" : "block"
-          })
-        })
-      }
+    if (heroSlider) {
+      heroSlider.addEventListener("mouseenter", stopSlideInterval)
+      heroSlider.addEventListener("mouseleave", startSlideInterval)
     }
   
-    // Initialize mobile menu
-    setupMobileMenu()
+    // Start the slider
+    if (slides.length > 0) {
+      startSlideInterval()
+    }
   
-    // Reinitialize on resize
-    window.addEventListener("resize", setupMobileMenu)
+    // Mobile menu toggle
+    const menuToggle = document.getElementById("menu-toggle")
+    const mainNav = document.getElementById("main-nav")
+  
+    if (menuToggle && mainNav) {
+      menuToggle.addEventListener("click", () => {
+        mainNav.classList.toggle("active")
+        const icon = menuToggle.querySelector("i")
+        if (icon) {
+          icon.classList.toggle("fa-bars")
+          icon.classList.toggle("fa-times")
+        }
+      })
+    }
+  
+    // Mobile dropdown toggle
+    const dropdownToggles = document.querySelectorAll(".dropdown-toggle")
+  
+    dropdownToggles.forEach((toggle) => {
+      toggle.addEventListener("click", function (e) {
+        // Only handle dropdown toggle on mobile
+        if (window.innerWidth <= 768) {
+          e.preventDefault()
+          const parent = this.parentElement
+          const dropdownMenu = parent.querySelector(".dropdown-menu")
+  
+          // Close all other dropdowns
+          document.querySelectorAll(".dropdown").forEach((item) => {
+            if (item !== parent) {
+              item.classList.remove("active")
+            }
+          })
+  
+          // Toggle current dropdown
+          parent.classList.toggle("active")
+  
+          // Toggle icon
+          const icon = this.querySelector("i")
+          if (icon) {
+            icon.classList.toggle("fa-chevron-down")
+            icon.classList.toggle("fa-chevron-up")
+          }
+        }
+      })
+    })
+  
+    // Handle window resize
+    window.addEventListener("resize", () => {
+      if (window.innerWidth > 768) {
+        // Reset mobile menu when resizing to desktop
+        if (mainNav) {
+          mainNav.classList.remove("active")
+        }
+  
+        // Reset all dropdowns when resizing to desktop
+        document.querySelectorAll(".dropdown").forEach((item) => {
+          item.classList.remove("active")
+        })
+  
+        // Reset menu toggle icon
+        if (menuToggle) {
+          const icon = menuToggle.querySelector("i")
+          if (icon) {
+            icon.classList.remove("fa-times")
+            icon.classList.add("fa-bars")
+          }
+        }
+      }
+    })
   
     // Smooth scroll for anchor links
     document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
       anchor.addEventListener("click", function (e) {
         const href = this.getAttribute("href")
   
-        if (href !== "#") {
+        if (href !== "#" && href !== "#!" && !this.classList.contains("dropdown-toggle")) {
           e.preventDefault()
   
           const targetElement = document.querySelector(href)
@@ -86,6 +139,18 @@ document.addEventListener("DOMContentLoaded", () => {
             targetElement.scrollIntoView({
               behavior: "smooth",
             })
+  
+            // Close mobile menu after clicking a link
+            if (mainNav && window.innerWidth <= 768) {
+              mainNav.classList.remove("active")
+              if (menuToggle) {
+                const icon = menuToggle.querySelector("i")
+                if (icon) {
+                  icon.classList.remove("fa-times")
+                  icon.classList.add("fa-bars")
+                }
+              }
+            }
           }
         }
       })
