@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
   
     // Mobile menu toggle
     const menuToggle = document.getElementById("menu-toggle")
-    const mainNav = document.getElementById("main-nav")
+    const mainNav = document.querySelector(".main-nav")
   
     if (menuToggle && mainNav) {
       menuToggle.addEventListener("click", () => {
@@ -72,32 +72,26 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   
     // Mobile dropdown toggle
-    const dropdownToggles = document.querySelectorAll(".dropdown-toggle")
+    // Fix for dropdown menus on mobile
+    const dropdowns = document.querySelectorAll(".dropdown")
   
-    dropdownToggles.forEach((toggle) => {
-      toggle.addEventListener("click", function (e) {
+    dropdowns.forEach((dropdown) => {
+      const link = dropdown.querySelector("a")
+  
+      link.addEventListener("click", (e) => {
         // Only handle dropdown toggle on mobile
         if (window.innerWidth <= 768) {
           e.preventDefault()
-          const parent = this.parentElement
-          const dropdownMenu = parent.querySelector(".dropdown-menu")
   
-          // Close all other dropdowns
-          document.querySelectorAll(".dropdown").forEach((item) => {
-            if (item !== parent) {
-              item.classList.remove("active")
+          // Toggle the current dropdown
+          dropdown.classList.toggle("active")
+  
+          // Close other dropdowns
+          dropdowns.forEach((otherDropdown) => {
+            if (otherDropdown !== dropdown && otherDropdown.classList.contains("active")) {
+              otherDropdown.classList.remove("active")
             }
           })
-  
-          // Toggle current dropdown
-          parent.classList.toggle("active")
-  
-          // Toggle icon
-          const icon = this.querySelector("i")
-          if (icon) {
-            icon.classList.toggle("fa-chevron-down")
-            icon.classList.toggle("fa-chevron-up")
-          }
         }
       })
     })
@@ -111,8 +105,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
   
         // Reset all dropdowns when resizing to desktop
-        document.querySelectorAll(".dropdown").forEach((item) => {
-          item.classList.remove("active")
+        dropdowns.forEach((dropdown) => {
+          dropdown.classList.remove("active")
         })
   
         // Reset menu toggle icon
@@ -131,7 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
       anchor.addEventListener("click", function (e) {
         const href = this.getAttribute("href")
   
-        if (href !== "#" && href !== "#!" && !this.classList.contains("dropdown-toggle")) {
+        if (href !== "#" && href !== "#!" && !this.parentElement.classList.contains("dropdown")) {
           e.preventDefault()
   
           const targetElement = document.querySelector(href)
